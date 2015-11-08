@@ -515,6 +515,9 @@ init_Image(void)
     rb_define_method(cVIPSImage, "rot90", img_rot90, 0); // in image_conversion.c
     rb_define_method(cVIPSImage, "rot180", img_rot180, 0); // in image_conversion.c
     rb_define_method(cVIPSImage, "rot270", img_rot270, 0); // in image_conversion.c
+#if ATLEAST_VIPS( 7, 42 )
+    rb_define_method(cVIPSImage, "autorot", img_autorot, 0); // in image_conversion.c
+#endif
     rb_define_method(cVIPSImage, "subsample", img_subsample, -1); // in image_conversion.c
     rb_define_method(cVIPSImage, "zoom", img_zoom, -1); // in image_conversion.c
     rb_define_method(cVIPSImage, "conv", img_conv, 1); // in image_convolution.c

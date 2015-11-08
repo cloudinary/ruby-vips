@@ -33,6 +33,9 @@ VALUE img_flipver(VALUE);
 VALUE img_rot90(VALUE);
 VALUE img_rot180(VALUE);
 VALUE img_rot270(VALUE);
+#if ATLEAST_VIPS( 7, 42 )
+VALUE img_autorot(VALUE);
+#endif
 VALUE img_subsample(int, VALUE*, VALUE);
 VALUE img_zoom(int, VALUE*, VALUE);
 void init_Image_conversion();

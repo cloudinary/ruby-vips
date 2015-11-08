@@ -60,6 +60,7 @@ module VIPS
       @shrink_factor = options[:shrink_factor] || 1
       @fail_on_warn = options[:fail_on_warn] || false
       @sequential = options[:sequential] || false
+      @autorotate = options[:autorotate] || false
 
       super path, options
     end
@@ -88,7 +89,7 @@ module VIPS
     end
 
     def read_buffer
-      @_im = buf_internal @path, @shrink_factor, b_to_i(@fail_on_warn)
+      @_im = buf_internal @path, @shrink_factor, b_to_i(@fail_on_warn), b_to_i(@autorotate)
     end
 
     # Shrink the jpeg while reading from disk. This means that the entire image

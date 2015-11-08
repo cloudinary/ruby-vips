@@ -18,13 +18,16 @@ module VIPS
     @@gc_countdown = @@gc_interval
 
     def write_gc(path)
-      @@gc_countdown -= 1
+      maybe_gc
+      write_internal path
+    end
+
+    def maybe_gc
+       @@gc_countdown -= 1
       if @@gc_countdown < 0 
         @@gc_countdown = @@gc_interval
         GC.start
       end
-
-      write_internal path
     end
   end
 
@@ -44,22 +47,37 @@ module VIPS
   end
 
   class JPEGWriter < Writer
-    attr_reader :quality
+    attr_reader :quality, :profile, :optimize_coding, :interlace, :strip, :no_subsample
 
     def initialize(image, options={})
       super image
 
       @quality = 75
+      @profile = "none"
+      @optimize_coding = false
+      @interlace = false
+      @strip = false
+      @no_subsample = false
 
       self.quality = options[:quality] if options.has_key?(:quality)
+      self.profile = options[:profile] if options.has_key?(:profile)
+      self.optimize_coding = options[:optimize_coding] if options.has_key?(:optimize_coding)
+      self.interlace = options[:interlace] if options.has_key?(:interlace)
+      self.strip = options[:strip] if options.has_key?(:strip)
+      self.no_subsample = options[:no_subsample] if options.has_key?(:no_subsample)
     end
 
     def write(path)
-      write_gc "#{path}:#{@quality}"
+      if ::VIPS::foreign_supported?
+        maybe_gc
+        write_foreign(path, *args)
+      else
+        write_gc "#{path}:#{@quality}"
+      end
     end
 
     def to_memory
-      buf_internal @quality
+      buf_internal *args
     end
 
     def quality=(quality_v)
@@ -68,6 +86,41 @@ module VIPS
       end
 
       @quality = quality_v
+    end
+
+    def profile=(profile_path)
+      unless profile_path == 'none' || File.exist?(profile_path)
+        raise ArgumentError, "profile file #{profile_path} does not exist"
+      end
+      @profile = profile
+    end
+
+    def optimize_coding=(optimize_coding_v)
+      assign_boolean('optimize_coding', optimize_coding_v)
+    end
+
+    def interlace=(interlace_v)
+      assign_boolean('interlace', interlace_v)
+    end
+
+    def strip=(strip_v)
+      assign_boolean('strip', strip_v)
+    end
+
+    def no_subsample=(no_subsample_v)
+      assign_boolean('no_subsample', no_subsample_v)
+    end
+
+    private
+    def assign_boolean(name, value)
+      case value
+      when TrueClass, FalseClass then self.instance_variable_set("@#{name}", value)
+      else raise ArgumentError, "#{name} must be a boolean"
+      end
+    end
+
+    def args
+      [@quality, @profile, @optimize_coding ? 1 : 0, @interlace ? 1 : 0, @strip ? 1 : 0, @no_subsample ? 1 : 0]
     end
   end
 

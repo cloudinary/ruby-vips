@@ -140,7 +140,7 @@ writer_write_internal(VALUE obj, VALUE path)
 /* :nodoc: */
 
 static VALUE
-jpeg_buf_internal(VALUE obj, VALUE quality)
+jpeg_buf_internal(VALUE obj, VALUE quality, VALUE profile, VALUE optimize_coding, VALUE interlace, VALUE strip, VALUE no_subsample)
 {
     char *buf = NULL;
     int length;
@@ -153,6 +153,11 @@ jpeg_buf_internal(VALUE obj, VALUE quality)
 
     if (vips_jpegsave_buffer(im, &buf, &len,
         "Q", NUM2INT(quality),
+        "profile", RSTRING_PTR(profile),
+        "optimize_coding", NUM2INT(optimize_coding),
+        "interlace", NUM2INT(interlace),
+        "strip", NUM2INT(strip),
+        "no_subsample", NUM2INT(no_subsample),
 	NULL))
         vips_lib_error();
 
@@ -171,15 +176,39 @@ jpeg_buf_internal(VALUE obj, VALUE quality)
 /* :nodoc: */
 
 static VALUE
+jpeg_write_foreign(VALUE obj, VALUE path, VALUE quality, VALUE profile, VALUE optimize_coding, VALUE interlace, VALUE strip, VALUE no_subsample)
+{
+#if ATLEAST_VIPS( 7, 28 )
+{
+
+    GetImg(obj, data, im);
+
+    if (vips_jpegsave(im, RSTRING_PTR(path),
+        "Q", NUM2INT(quality),
+        "profile", RSTRING_PTR(profile),
+        "optimize_coding", NUM2INT(optimize_coding),
+        "interlace", NUM2INT(interlace),
+        "strip", NUM2INT(strip),
+        "no_subsample", NUM2INT(no_subsample),
+    NULL))
+        vips_lib_error();
+    return obj;
+}
+#else
+    vips_lib_error();
+#endif
+}
+
+static VALUE
 jpeg_write_internal(VALUE obj, VALUE path)
 {
     GetImg(obj, data, im);
-
     if (im_vips2jpeg(im, RSTRING_PTR(path)))
         vips_lib_error();
 
     return obj;
 }
+
 
 /* :nodoc: */
 
@@ -319,9 +348,9 @@ init_Writer(void)
      */
 
     VALUE jpeg_writer = rb_define_class_under(mVIPS, "JPEGWriter", writer);
-    rb_define_private_method(jpeg_writer, "buf_internal", jpeg_buf_internal, 1);
+    rb_define_private_method(jpeg_writer, "buf_internal", jpeg_buf_internal, 8);
+    rb_define_private_method(jpeg_writer, "write_foreign", jpeg_write_foreign, 7);   
     rb_define_private_method(jpeg_writer, "write_internal", jpeg_write_internal, 1);
-
     /*
      * Write TIFF images.
      */

@@ -12,5 +12,10 @@ module VIPS
       comp = VIPS::LIB_VERSION_ARRAY <=> [7,28,0]
       comp >= 0
     end
+
+    def foreign_supported?
+      comp = VIPS::LIB_VERSION_ARRAY <=> [7,28,0]
+      comp >= 0
+    end
   end
 end

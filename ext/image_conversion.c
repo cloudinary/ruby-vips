@@ -818,6 +818,28 @@ img_rot270(VALUE obj)
 	RUBY_VIPS_UNARY(im_rot270);
 }
 
+
+#if ATLEAST_VIPS( 7, 42 )
+/*
+ *  call-seq:
+ *     im.autorot -> image
+ *
+ *  Rotate an image 270 degrees.
+ */
+
+VALUE
+img_autorot(VALUE obj)
+{
+    GetImg(obj, data, im);
+    
+    VipsImage *im_new;
+    im_new = NULL; 
+    if (vips_autorot(im, &im_new, NULL))
+            vips_lib_error();
+    return img_init(cVIPSImage, im_new);
+}
+#endif
+
 /*
  *  call-seq:
  *     im.subsample(x [,y]) -> image
