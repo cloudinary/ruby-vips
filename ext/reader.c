@@ -80,13 +80,13 @@ magick_buf_internal(VALUE obj, VALUE buf)
 
     im_new = NULL; 
 
-#if ATLEAST_VIPS( 8, 2 )
+#if ATLEAST_VIPS( 8, 1 )
     buf = StringValue(buf);
 
     if (!(im_new = im_open("", "p")))
         vips_lib_error();
 
-    if (im_bufmagick2vips(RSTRING_PTR(buf), RSTRING_LEN(buf), im_new, FALSE))
+    if (vips_magickload_buffer(RSTRING_PTR(buf), RSTRING_LEN(buf), &im_new, NULL))
         vips_lib_error();
 #else
     rb_raise(eVIPSError, "This method is not implemented in your version of VIPS");
