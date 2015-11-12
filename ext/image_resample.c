@@ -147,6 +147,21 @@ img_shrink(int argc, VALUE *argv, VALUE obj)
     return new;
 }
 
+#if ATLEAST_VIPS( 8, 0 )
+VALUE
+img_resize(VALUE obj, VALUE scale, VALUE itrp_sym)
+{
+    VipsInterpolate *itrp_vips = interp_lookup(itrp_sym);
+    VipsImage *im_new = NULL;
+
+    GetImg(obj, data, im);
+    
+    if(vips_resize(im, &im_new, NUM2DBL(scale), "interpolate", itrp_vips, NULL))
+        vips_lib_error();
+    
+    return img_init(cVIPSImage, im_new);
+}
+#endif
 /*
  *  call-seq:
  *     im.rightshift_size(xshift, yshift, fmt) -> image

@@ -62,3 +62,6 @@ DEPENDENCIES
   jeweler (~> 1.8.3)
   rdoc (~> 3.12)
   rspec
+
+BUNDLED WITH
+   1.10.4

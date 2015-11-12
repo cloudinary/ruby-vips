@@ -597,6 +597,9 @@ init_Image(void)
     rb_define_method(cVIPSImage, "affinei_resize", img_affinei_resize, -1); // in image_resample.c
     rb_define_method(cVIPSImage, "stretch3", img_stretch3, -1); // in image_resample.c
     rb_define_method(cVIPSImage, "shrink", img_shrink, -1); // in image_resample.c
+#if ATLEAST_VIPS( 8, 0 )
+    rb_define_method(cVIPSImage, "resize", img_resize, 2); // in image_resample.c
+#endif
     rb_define_method(cVIPSImage, "rightshift_size", img_rightshift_size, 3); // in image_resample.c
     rb_define_method(cVIPSImage, "match_linear", img_match_linear, 9); // in image_resample.c
     rb_define_method(cVIPSImage, "match_linear_search", img_match_linear_search, 11); // in image_resample.c
